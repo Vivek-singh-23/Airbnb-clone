@@ -1,16 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose')
 const User = require('./models/User.js')
 const app = express();
+const cookieParser = require('cookie-parser')
 
 
 
 // convert this variable to .env file
 const bcryptSalt = bcrypt.genSaltSync(12);
+const jwtSecret = 'anyjwtsecret'
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(cors({
     credentials: true,
@@ -35,7 +39,7 @@ app.post('/register', async(req, res)=>{
             password : bcrypt.hashSync(password, bcryptSalt),
         })
 
-
+        await user.save();
         res.json(user);
     }catch(e){
         console.log(e);
@@ -50,15 +54,49 @@ app.post('/login', async(req, res)=>{
     if(userDoc){
         const pass = bcrypt.compareSync(password, userDoc.password)
         if(pass){
-            console.log('correct password')
+            jwt.sign({email:userDoc.email, id:userDoc._id}, jwtSecret, {}, (err, token)=>{
+                if(err){
+                    throw err;
+                }
+                res.cookie('token', token).json(userDoc);
+
+            });
+            
         }else{
-            res.json('pass not ok')
-            console.log('incorrect password')
+            res.status(422).json('pass not ok')
+            
         }
     }else{
         res.json('not found');
         alert('user not found')
     }
+})
+
+
+app.get('/profile', (req, res)=>{
+    const {token} = req.cookies;
+    if(token){
+        jwt.verify(token, jwtSecret, {}, async (err, userData)=>{
+            if(err){
+                throw err;
+            }
+
+            const {name, email, _id} = await User.findById(userData.id)
+            res.json({name, email, _id});
+        })
+    }else{
+        res.json(null);
+    }
+})
+
+
+app.post('/logout', (req, res)=>{
+    res.cookie('token', '').json(true);
+})
+
+
+app.get('/account', (req, res)=>{
+    console.log('Hello')
 })
 
 
