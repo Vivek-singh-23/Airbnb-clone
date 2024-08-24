@@ -3,8 +3,15 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import Perks from "./Perks";
 import axios from "axios";
 import AccountNav from "./AccountNav";
+import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { FaRegTrashCan } from "react-icons/fa6";
+import { FaRegStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 
 const PlacesFormPage = () => {
+  const { id } = useParams();
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
   const [addedPhotos, setAddedPhotos] = useState([]);
@@ -15,6 +22,28 @@ const PlacesFormPage = () => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
+  const [redirect, setRedirect] = useState(false);
+  const [price, setPrice] = useState(100);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    axios.get("/places/" + id).then((response) => {
+      const { data } = response;
+      setTitle(data.title);
+      setAddress(data.address);
+      setAddedPhotos(data.photos);
+      setDescription(data.description);
+      setPerks(data.perks);
+      setExtraInfo(data.extraInfo);
+      setCheckIn(data.checkIn);
+      setCheckOut(data.checkOut);
+      setMaxGuests(data.maxGuests);
+      setPrice(data.price);
+    });
+  }, [id]);
 
   function inputHeader(text) {
     return <h2 className="text-2xl mt-4">{text}</h2>;
@@ -60,9 +89,10 @@ const PlacesFormPage = () => {
       });
   }
 
-  async function addNewPlace(e) {
+  async function savePlace(e) {
     e.preventDefault();
-    await axios.post("/places", {
+
+    const placeData = {
       title,
       address,
       addedPhotos,
@@ -72,14 +102,41 @@ const PlacesFormPage = () => {
       checkIn,
       checkOut,
       maxGuests,
-    });
+      price
+    };
+    if (id) {
+      await axios.put(`/places/${id}`, {
+        id,
+        ...placeData,
+      });
+    } else {
+      await axios.post("/places", placeData);
+    }
+
+    setRedirect(true);
+  }
+
+  if (redirect) {
+    return <Navigate to={"/account/places"} />;
+  }
+
+  function removePhoto(e,filename) {
+    e.preventDefault();
+    setAddedPhotos((prev) => prev.filter((photo) => photo !== filename));
+  }
+
+  function selectAsMainPhoto(e,filename){
+    e.preventDefault();
+    const addedPhotosWithoutSelected = addedPhotos.filter(photo=>photo !== filename);
+    const newAddedPhotos = [filename, ...addedPhotosWithoutSelected];
+    setAddedPhotos(newAddedPhotos);
   }
 
   return (
     <div>
-        <AccountNav/>
+      <AccountNav />
       <div className="px-16 py-4">
-        <form onSubmit={addNewPlace}>
+        <form onSubmit={savePlace}>
           {preInput(
             "Title",
             "Title for your Place. Should be short and catchy for your place"
@@ -121,12 +178,24 @@ const PlacesFormPage = () => {
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {addedPhotos.length > 0 &&
               addedPhotos.map((link) => (
-                <div key={link} className="flex h-auto">
+                <div key={link} className="relative flex h-auto">
                   <img
                     className="rounded-2xl w-full object-cover"
                     src={"http://localhost:4000/uploads/" + link}
                     alt=""
                   />
+                  <button onClick={e=>removePhoto(e,link)} className="cursor-pointer absolute bottom-1  right-1 text-white py-2 px-3 bg-black bg-opacity-50 rounded-2xl">
+                  <FaRegTrashCan />
+                  </button>
+
+                  <button onClick={e=>selectAsMainPhoto(e,link)}  className="cursor-pointer absolute bottom-1  left-1 text-white py-2 px-3 bg-black bg-opacity-50 rounded-2xl">
+                    {link === addedPhotos[0] && (
+                      <FaStar />
+                    )}
+                    {link !== addedPhotos[0] && (
+                      <FaRegStar />
+                    )}
+                  </button>
                 </div>
               ))}
             <label className="cursor-pointer flex flex-col items-center justify-center border bg-transparent rounded-2xl p-4 text-2xl text-gray-600">
@@ -161,7 +230,7 @@ const PlacesFormPage = () => {
             "Check in&out time, max guests",
             "Add check in and out time"
           )}
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-4 ">
             <div>
               <h3>Check-in time</h3>
               <input
@@ -189,6 +258,17 @@ const PlacesFormPage = () => {
                 onChange={(e) => setMaxGuests(e.target.value)}
               />
             </div>
+
+            <div>
+              <h3>Price Per Night</h3>
+              <input
+                className="w-full p-2 border rounded"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+
           </div>
 
           <button className="bg-primary text-white py-2 px-4 rounded mt-4">

@@ -21,9 +21,9 @@ const ProfilePage = () => {
     setUser(null);
   }
 
-  if (!ready) {
-    return "Loading...";
-  }
+  // if (!ready) {
+  //   return "Loading...";
+  // }
 
   if (ready && !user && !redirect) {
     return <Navigate to="/login" />;
