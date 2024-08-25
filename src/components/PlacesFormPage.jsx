@@ -32,6 +32,7 @@ const PlacesFormPage = () => {
 
     axios.get("/places/" + id).then((response) => {
       const { data } = response;
+      // console.log(response);
       setTitle(data.title);
       setAddress(data.address);
       setAddedPhotos(data.photos);
@@ -67,10 +68,17 @@ const PlacesFormPage = () => {
     const { data: filename } = await axios.post("/upload-by-link", {
       link: photoLink,
     });
-    setAddedPhotos((prev) => [...prev, "uploads/"+filename]);
+    
+    setAddedPhotos((prev) => {
+      const newPhotos = [...prev, "uploads/" + filename];
+      // console.log(newPhotos);
+      // console.log(newPhotos.length);
+      return newPhotos;
+    });
+  
     setPhotoLink("");
-    console.log(filename);
   }
+  
 
   function uploadPhoto(e) {
     const files = e.target.files;
@@ -88,6 +96,8 @@ const PlacesFormPage = () => {
           return [...prev, ...filenames];
         });
       });
+    // console.log(addedPhotos);
+    // console.log(addedPhotos.length);
   }
 
   async function savePlace(e) {
@@ -96,7 +106,7 @@ const PlacesFormPage = () => {
     const placeData = {
       title,
       address,
-      addedPhotos,
+      photos:addedPhotos,
       description,
       perks,
       extraInfo,
@@ -105,7 +115,10 @@ const PlacesFormPage = () => {
       maxGuests,
       price
     };
+
+    // console.log(placeData);
     if (id) {
+
       await axios.put(`/places/${id}`, {
         id,
         ...placeData,
@@ -177,7 +190,6 @@ const PlacesFormPage = () => {
           </div>
 
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {console.log(addedPhotos.length)}
             {addedPhotos.length > 0 &&
               addedPhotos.map((link) => (
                 <div key={link} className="relative flex h-auto">

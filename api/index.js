@@ -92,10 +92,6 @@ app.post('/upload-by-link', async (req, res) => {
         dest: __dirname + '/uploads/' + newName
     });
     res.json(newName);
-
-
-    
-
 });
 
 const photosMiddleware = multer({ dest: 'uploads/' });
@@ -106,13 +102,12 @@ app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
         const parts = originalname.split('.');
         const ext = parts[parts.length - 1];
         const newPath = path + '.' + ext;
-        console.log("new Path 1", newPath);
         fs.renameSync(path, newPath);
-        console.log("new Path 2", newPath);
         uploadedFiles.push(newPath.replace('uploads/', ''));
     }
     res.json(uploadedFiles);
 });
+
 
 app.post('/places', async(req, res)=>{
     const { token } = req.cookies;
@@ -124,9 +119,11 @@ app.post('/places', async(req, res)=>{
         
         const placeDoc = await Place.create({
             owner:userData.id,
-            title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests,price
+            title, address, photos:addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests,price
         })
+        console.log(placeDoc)
         res.json(placeDoc);
+        
 
     });
 })
@@ -149,7 +146,7 @@ app.get('/places/:id', async(req, res)=>{
 
 app.put('/places/:id', async(req, res)=>{
     const { token } = req.cookies;
-    const {id, title, address,photos:addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests,price,} = req.body;
+    const {id, title, address,photos:addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests,price} = req.body;
     
 
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
@@ -158,7 +155,7 @@ app.put('/places/:id', async(req, res)=>{
         const placeDoc = await Place.findById(id);
         if(userData.id === placeDoc.owner.toString()){
             placeDoc.set({title, address,photos:addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests,price})
-            
+            console.log(placeDoc);
             await placeDoc.save();
             res.json('ok');
         }
