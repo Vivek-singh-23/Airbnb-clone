@@ -67,8 +67,9 @@ const PlacesFormPage = () => {
     const { data: filename } = await axios.post("/upload-by-link", {
       link: photoLink,
     });
-    setAddedPhotos((prev) => [...prev, filename]);
+    setAddedPhotos((prev) => [...prev, "uploads/"+filename]);
     setPhotoLink("");
+    console.log(filename);
   }
 
   function uploadPhoto(e) {
@@ -176,14 +177,16 @@ const PlacesFormPage = () => {
           </div>
 
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            {console.log(addedPhotos.length)}
             {addedPhotos.length > 0 &&
               addedPhotos.map((link) => (
                 <div key={link} className="relative flex h-auto">
                   <img
                     className="rounded-2xl w-full object-cover"
-                    src={"http://localhost:4000/uploads/" + link}
+                    src={"http://localhost:4000/" + link}
                     alt=""
                   />
+                  
                   <button onClick={e=>removePhoto(e,link)} className="cursor-pointer absolute bottom-1  right-1 text-white py-2 px-3 bg-black bg-opacity-50 rounded-2xl">
                   <FaRegTrashCan />
                   </button>

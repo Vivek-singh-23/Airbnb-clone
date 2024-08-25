@@ -86,12 +86,16 @@ app.post('/logout', (req, res) => {
 
 app.post('/upload-by-link', async (req, res) => {
     const { link } = req.body;
-    const newName = 'photo' + Date.now() + '.jpg';
+    const newName = 'photo' + Date.now()+'.jpg';
     await imageDownloader.image({
         url: link,
         dest: __dirname + '/uploads/' + newName
     });
     res.json(newName);
+
+
+    
+
 });
 
 const photosMiddleware = multer({ dest: 'uploads/' });
@@ -102,7 +106,9 @@ app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
         const parts = originalname.split('.');
         const ext = parts[parts.length - 1];
         const newPath = path + '.' + ext;
+        console.log("new Path 1", newPath);
         fs.renameSync(path, newPath);
+        console.log("new Path 2", newPath);
         uploadedFiles.push(newPath.replace('uploads/', ''));
     }
     res.json(uploadedFiles);
@@ -130,9 +136,9 @@ app.get('/user-places', (req, res)=>{
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
         const {id} = userData;
         res.json(await Place.find({owner:id}))
+        
     });
-
-})
+}) 
 
 
 app.get('/places/:id', async(req, res)=>{
