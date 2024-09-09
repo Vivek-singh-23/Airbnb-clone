@@ -4,8 +4,9 @@ import AccountNav from "./AccountNav";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { MdOutlineClose } from "react-icons/md";
-import { RiMapPin2Fill } from "react-icons/ri";
 import BookingWidget from "./BookingWidget";
+import { PlaceGallery } from "./PlaceGallery";
+import AddressLink from "./AddressLink";
 
 export const PlacePage = () => {
   const { id } = useParams();
@@ -55,49 +56,9 @@ export const PlacePage = () => {
       <div className="mt-6 bg-gray-100  px-16 pt-12 pb-8">
         <h1 className="text-4xl mb-6">{place.title}</h1>
 
-        <a
-          className="flex items-center my-4 block font-semibold underline"
-          href={"https://maps.google.com/?q=" + place.address}
-        >
-          <RiMapPin2Fill className="mr-2" />
-          {place.address}
-        </a>
+        <AddressLink>{place.address}</AddressLink>
 
-        <div className="relative mb-8">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-[2fr_1fr] rounded-3xl overflow-hidden">
-            <div className="md:col-span-1">
-              {place.photos?.[0] && (
-                <div className="overflow-hidden rounded-lg">
-                  <img
-                    onClick={() => setShowAllPhotos(true)}
-                    className="w-full h-full cursor-pointer object-cover"
-                    src={"http://localhost:4000/" + place.photos[0]}
-                    alt=""
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {place.photos?.slice(1, 3).map((photo, index) => (
-                <div key={index} className="overflow-hidden rounded-lg">
-                  <img
-                    onClick={() => setShowAllPhotos(true)}
-                    className="w-full h-full cursor-pointer object-cover"
-                    src={"http://localhost:4000/" + photo}
-                    alt=""
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <button
-            onClick={() => setShowAllPhotos(true)}
-            className="absolute bottom-6 right-6 py-3 px-6 bg-white rounded-2xl shadow-lg"
-          >
-            Show more photos
-          </button>
-        </div>
+        <PlaceGallery place={place}/>
 
         <div className="mt-12 mb-12 grid gap-12 grid-cols-1 md:grid-cols-[2fr_1fr]">
           <div>

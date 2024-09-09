@@ -35,7 +35,7 @@ const AccountNav = () => {
           <CiUser />
           My Profile
         </Link>
-        <Link className={linkClasses("booking")} to="/account/booking">
+        <Link className={linkClasses("booking")} to="/account/bookings">
           <FaListUl />
           My Bookings
         </Link>

@@ -16,7 +16,7 @@ export const Index = () => {
   return (
     <div>
       <Navbar />
-      <div className="mt-8 grid gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-8 m-4 grid gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {places.length > 0 &&
           places.map((place) => (
             <Link to={'/place/'+place._id} key={place.id} className="bg-white rounded-2xl p-4 shadow-lg">
