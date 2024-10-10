@@ -54,7 +54,7 @@ export const PlacePage = () => {
     <div>
       <AccountNav />
       <div className="mt-6 bg-gray-100  px-16 pt-12 pb-8">
-        <h1 className="text-4xl mb-6">{place.title}</h1>
+          <h1 className="text-4xl mb-6">{place.title}</h1>
 
         <AddressLink>{place.address}</AddressLink>
 
